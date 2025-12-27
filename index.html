@@ -12,7 +12,6 @@
         .card { background: white; border-radius: 20px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); width: 180px; padding: 12px; text-align: center; display: flex; flex-direction: column; }
         .food-img { width: 100%; height: 130px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; background-color: #f9f9f9; }
         
-        /* Editierbare Fachnummer */
         .fach-container { margin-bottom: 8px; font-size: 0.8rem; color: #7f8c8d; }
         .fach-input { 
             background: #34495e; 
@@ -62,7 +61,6 @@
             { name: "Kaiserschmarrn", fach: 7 },
             { name: "Kirschpfannkuchen", fach: 8 },
             { name: "Pastapfanne Pesto Rosso", fach: 8 },
-            { name: "Herzhafter Geflügeltopf", fach: 9 },
             { name: "Nougat-Palatschinken", fach: 9 },
             { name: "Süsse Lasagne", fach: 9 } 
         ];
@@ -74,12 +72,12 @@
             const card = document.createElement('div');
             card.className = 'card';
             
-            const dateiName = prod.bildName ? prod.bildName : prod.name;
-            const bildURL = dateiName + ".png";
+            // Bild-URL sicher machen (Umlaute/Leerzeichen maskieren)
+            const bildURL = encodeURIComponent(prod.name) + ".png";
 
             card.innerHTML = `
                 <img src="${bildURL}" class="food-img" alt="${prod.name}" 
-                     onerror="if (this.src != 'https://via.placeholder.com/180x130?text=Bild+fehlt') { this.src='https://via.placeholder.com/180x130?text=Bild+fehlt'; }">
+                     onerror="if(!this.getAttribute('data-error')){this.setAttribute('data-error','1');this.src='https://via.placeholder.com/180x130?text=Bild+fehlt';}">
                 
                 <div class="fach-container">
                     Fach: <input type="number" class="fach-input" value="${prod.fach}" min="1" max="20">
@@ -112,4 +110,3 @@
     </script>
 </body>
 </html>
-
