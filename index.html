@@ -13,18 +13,7 @@
         .food-img { width: 100%; height: 130px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; background-color: #f9f9f9; }
         
         .fach-container { margin-bottom: 8px; font-size: 0.8rem; color: #7f8c8d; }
-        .fach-input { 
-            background: #34495e; 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            width: 60px; 
-            text-align: center; 
-            padding: 2px 5px; 
-            font-size: 0.75rem; 
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .fach-input { background: #34495e; color: white; border: none; border-radius: 10px; width: 60px; text-align: center; padding: 2px 5px; font-size: 0.75rem; font-weight: bold; }
 
         .name { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; min-height: 2.8em; display: flex; align-items: center; justify-content: center; line-height: 1.2; color: #333; }
         
@@ -44,68 +33,93 @@
     <div class="container" id="product-container"></div>
 
     <script>
-        const produkte = [
-            { name: "Hähnchenkeule", fach: 1 },
-            { name: "Sauerbraten", fach: 1 },
-            { name: "Sieben-Schwaben-Topf", fach: 2 },
-            { name: "Gemüsepfanne mit geschnittenen Gemüsemaultaschen", fach: 2 },
-            { name: "Rinderleber", fach: 3 },
-            { name: "Brokkoli-Bandnudeln", fach: 3 },
-            { name: "Pfefferfrikadellen", fach: 4 },
-            { name: "Nudelplatte", fach: 4 },
-            { name: "Ofenschlupfer", fach: 5 },
-            { name: "Schweinsbraten", fach: 5 },
-            { name: "Herzhafter Geflügeltopf", fach: 6 },
-            { name: "Griechische Hackroulade", fach: 6 },
-            { name: "Currywurst", fach: 7 },
-            { name: "Kaiserschmarrn", fach: 7 },
-            { name: "Kirschpfannkuchen", fach: 8 },
-            { name: "Pastapfanne Pesto Rosso", fach: 8 },
-            { name: "Nougat-Palatschinken", fach: 9 },
-            { name: "Süsse Lasagne", fach: 9 } 
+        const produktListe = [
+            "Hähnchenkeule", "Sauerbraten", "Sieben-Schwaben-Topf", 
+            "Gemüsepfanne mit geschnittenen Gemüsemaultaschen", "Rinderleber", 
+            "Brokkoli-Bandnudeln", "Pfefferfrikadellen", "Nudelplatte", 
+            "Ofenschlupfer", "Schweinsbraten", "Herzhafter Geflügeltopf", 
+            "Griechische Hackroulade", "Currywurst", "Kaiserschmarrn", 
+            "Kirschpfannkuchen", "Pastapfanne Pesto Rosso", 
+            "Nougat-Palatschinken", "Süsse Lasagne"
         ];
+
+        // Standard-Fächer festlegen
+        const standardFaecher = {
+            "Hähnchenkeule": 1, "Sauerbraten": 1, "Sieben-Schwaben-Topf": 2, 
+            "Gemüsepfanne mit geschnittenen Gemüsemaultaschen": 2, "Rinderleber": 3, 
+            "Brokkoli-Bandnudeln": 3, "Pfefferfrikadellen": 4, "Nudelplatte": 4, 
+            "Ofenschlupfer": 5, "Schweinsbraten": 5, "Herzhafter Geflügeltopf": 6, 
+            "Griechische Hackroulade": 6, "Currywurst": 7, "Kaiserschmarrn": 7, 
+            "Kirschpfannkuchen": 8, "Pastapfanne Pesto Rosso": 8, 
+            "Nougat-Palatschinken": 9, "Süsse Lasagne": 9
+        };
 
         const container = document.getElementById('product-container');
         const heute = new Date().toISOString().split('T')[0];
 
-        produkte.forEach((prod, index) => {
+        // Daten laden oder neu erstellen
+        let gespeicherteDaten = JSON.parse(localStorage.getItem('tiefkuehlDaten')) || {};
+
+        produktListe.forEach((name, index) => {
+            // Falls keine Daten existieren, Standardwerte nutzen
+            if (!gespeicherteDaten[name]) {
+                gespeicherteDaten[name] = {
+                    count: 1,
+                    fach: standardFaecher[name] || 1,
+                    mhd: heute
+                };
+            }
+
+            const data = gespeicherteDaten[name];
             const card = document.createElement('div');
             card.className = 'card';
-            
-            // Bild-URL sicher machen (Umlaute/Leerzeichen maskieren)
-            const bildURL = encodeURIComponent(prod.name) + ".png";
+            const bildURL = encodeURIComponent(name) + ".png";
 
             card.innerHTML = `
-                <img src="${bildURL}" class="food-img" alt="${prod.name}" 
+                <img src="${bildURL}" class="food-img" alt="${name}" 
                      onerror="if(!this.getAttribute('data-error')){this.setAttribute('data-error','1');this.src='https://via.placeholder.com/180x130?text=Bild+fehlt';}">
                 
                 <div class="fach-container">
-                    Fach: <input type="number" class="fach-input" value="${prod.fach}" min="1" max="20">
+                    Fach: <input type="number" class="fach-input" value="${data.fach}" onchange="updateData('${name}', 'fach', this.value)">
                 </div>
 
-                <div class="name">${prod.name}</div>
+                <div class="name">${name}</div>
                 
                 <div class="mhd-area">
                     <span class="mhd-label">MHD:</span>
-                    <input type="date" class="mhd-input" value="${heute}">
+                    <input type="date" class="mhd-input" value="${data.mhd}" onchange="updateData('${name}', 'mhd', this.value)">
 
                     <div class="stepper">
-                        <button class="btn" onclick="changeCount('count${index}', -1)">−</button>
-                        <span class="count" id="count${index}">1</span>
-                        <button class="btn" onclick="changeCount('count${index}', 1)">+</button>
+                        <button class="btn" onclick="changeCount('${name}', -1)">−</button>
+                        <span class="count" id="count-${index}">${data.count}</span>
+                        <button class="btn" onclick="changeCount('${name}', 1)">+</button>
                     </div>
                 </div>
             `;
             container.appendChild(card);
         });
 
-        function changeCount(id, delta) {
-            const countElement = document.getElementById(id);
-            let currentCount = parseInt(countElement.innerText);
-            let newCount = currentCount + delta;
+        // Funktion zum Ändern der Stückzahl
+        window.changeCount = function(name, delta) {
+            let data = gespeicherteDaten[name];
+            let newCount = data.count + delta;
             if (newCount >= 0) {
-                countElement.innerText = newCount;
+                data.count = newCount;
+                // UI updaten (wir suchen das Element über den Index in der Liste)
+                const idx = produktListe.indexOf(name);
+                document.getElementById(`count-${idx}`).innerText = newCount;
+                save();
             }
+        };
+
+        // Funktion zum Speichern von Fach und MHD
+        window.updateData = function(name, key, value) {
+            gespeicherteDaten[name][key] = value;
+            save();
+        };
+
+        function save() {
+            localStorage.setItem('tiefkuehlDaten', JSON.stringify(gespeicherteDaten));
         }
     </script>
 </body>
