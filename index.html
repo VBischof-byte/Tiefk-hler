@@ -1,52 +1,100 @@
-const produkte = [
-    { name: "Hähnchenkeule", fach: 1 },
-    { name: "Sauerbraten", fach: 1 },
-    { name: "Sieben-Schwaben-Topf", fach: 2 },
-    { name: "Gemüsepfanne mit geschnittenen Gemüsemaultaschen", fach: 2 },
-    { name: "Rinderleber", fach: 3 },
-    { name: "Brokkoli-Bandnudeln", fach: 3 },
-    { name: "Pfefferfrikadellen", fach: 4 },
-    { name: "Nudelplatte", fach: 4 },
-    { name: "Ofenschlupfer", fach: 5 },
-    { name: "Schweinsbraten", fach: 5 },
-    { name: "Herzhafter Geflügeltopf", fach: 6 },
-    { name: "Griechische Hackroulade", fach: 6 },
-    { name: "Currywurst", fach: 7 },
-    { name: "Kaiserschmarrn", fach: 7 },
-    { name: "Kirschpfannkuchen", fach: 8 },
-    { name: "Pastapfanne Pesto Rosso", fach: 8 },
-    { name: "Herzhafter Geflügeltopf", fach: 9 },
-    { name: "Nougat-Palatschinken", fach: 9 },
-    // Hier nutzen wir den neuen Dateinamen 'sueße Lasagne.png'
-    { name: "Süsse Lasagne", fach: 9, bildName: "sueße Lasagne" } 
-];
-
-// ... im Loop unten dann diese Zeile anpassen:
-produkte.forEach((prod, index) => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    
-    // Falls ein spezieller bildName existiert, nimm den, sonst den normalen Namen
-    const dateiName = prod.bildName ? prod.bildName : prod.name;
-    const bildURL = dateiName + ".png";
-
-    card.innerHTML = `
-        <img src="${bildURL}" class="food-img" alt="${prod.name}" 
-             onerror="this.onerror=null; this.src='https://via.placeholder.com/180x130?text=Bild+fehlt';">
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiefkühler Inventar</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f0f4f8; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        h1 { color: #2c3e50; margin: 20px 0; font-size: 1.8rem; }
+        .container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 1400px; padding-bottom: 50px; }
         
-        <div class="fach-badge">Fach ${prod.fach}</div>
-        <div class="name">${prod.name}</div>
+        .card { background: white; border-radius: 20px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); width: 180px; padding: 12px; text-align: center; display: flex; flex-direction: column; }
+        .food-img { width: 100%; height: 130px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; background-color: #f9f9f9; }
         
-        <div class="mhd-area">
-            <span class="mhd-label">MHD:</span>
-            <input type="date" class="mhd-input" value="${heute}">
+        .fach-badge { background: #34495e; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; align-self: center; margin-bottom: 8px; }
+        .name { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; min-height: 2.8em; display: flex; align-items: center; justify-content: center; line-height: 1.2; color: #333; }
+        
+        .mhd-area { margin-top: auto; border-top: 1px solid #f0f0f0; padding-top: 10px; }
+        .mhd-label { font-size: 0.75rem; color: #7f8c8d; margin-bottom: 4px; display: block; }
+        .mhd-input { border: 1px solid #dcdde1; border-radius: 8px; padding: 4px; font-size: 0.85rem; width: 90%; margin-bottom: 12px; text-align: center; font-family: inherit; }
 
-            <div class="stepper">
-                <button class="btn" onclick="changeCount('count${index}', -1)">−</button>
-                <span class="count" id="count${index}">1</span>
-                <button class="btn" onclick="changeCount('count${index}', 1)">+</button>
-            </div>
-        </div>
-    `;
-    container.appendChild(card);
-});
+        .stepper { display: flex; align-items: center; justify-content: space-between; background: #f1f2f6; padding: 6px 12px; border-radius: 12px; }
+        .btn { background-color: #3498db; color: white; border: none; border-radius: 8px; width: 32px; height: 32px; font-size: 1.2rem; cursor: pointer; }
+        .btn:active { background-color: #2471a3; }
+        .count { font-size: 1.2rem; font-weight: 600; color: #2c3e50; }
+    </style>
+</head>
+<body>
+
+    <h1>Mein Tiefkühler</h1>
+    <div class="container" id="product-container"></div>
+
+    <script>
+        // Liste der Produkte
+        // Falls der Dateiname anders ist als der Name, füge bildName hinzu (ohne .png)
+        const produkte = [
+            { name: "Hähnchenkeule", fach: 1 },
+            { name: "Sauerbraten", fach: 1 },
+            { name: "Sieben-Schwaben-Topf", fach: 2 },
+            { name: "Gemüsepfanne mit geschnittenen Gemüsemaultaschen", fach: 2 },
+            { name: "Rinderleber", fach: 3 },
+            { name: "Brokkoli-Bandnudeln", fach: 3 },
+            { name: "Pfefferfrikadellen", fach: 4 },
+            { name: "Nudelplatte", fach: 4 },
+            { name: "Ofenschlupfer", fach: 5 },
+            { name: "Schweinsbraten", fach: 5 },
+            { name: "Herzhafter Geflügeltopf", fach: 6 },
+            { name: "Griechische Hackroulade", fach: 6 },
+            { name: "Currywurst", fach: 7 },
+            { name: "Kaiserschmarrn", fach: 7 },
+            { name: "Kirschpfannkuchen", fach: 8 },
+            { name: "Pastapfanne Pesto Rosso", fach: 8 },
+            { name: "Herzhafter Geflügeltopf", fach: 9 },
+            { name: "Nougat-Palatschinken", fach: 9 },
+            { name: "Süsse Lasagne", fach: 9, bildName: "sueße Lasagne" } 
+        ];
+
+        const container = document.getElementById('product-container');
+        const heute = new Date().toISOString().split('T')[0];
+
+        produkte.forEach((prod, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            // Logik für den Bildnamen: Nutze bildName falls vorhanden, sonst name
+            const dateiName = prod.bildName ? prod.bildName : prod.name;
+            const bildURL = dateiName + ".png";
+
+            card.innerHTML = `
+                <img src="${bildURL}" class="food-img" alt="${prod.name}" 
+                     onerror="if (this.src != 'https://via.placeholder.com/180x130?text=Bild+fehlt') { this.src='https://via.placeholder.com/180x130?text=Bild+fehlt'; }">
+                
+                <div class="fach-badge">Fach ${prod.fach}</div>
+                <div class="name">${prod.name}</div>
+                
+                <div class="mhd-area">
+                    <span class="mhd-label">MHD:</span>
+                    <input type="date" class="mhd-input" value="${heute}">
+
+                    <div class="stepper">
+                        <button class="btn" onclick="changeCount('count${index}', -1)">−</button>
+                        <span class="count" id="count${index}">1</span>
+                        <button class="btn" onclick="changeCount('count${index}', 1)">+</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        function changeCount(id, delta) {
+            const countElement = document.getElementById(id);
+            let currentCount = parseInt(countElement.innerText);
+            let newCount = currentCount + delta;
+            if (newCount >= 0) {
+                countElement.innerText = newCount;
+            }
+        }
+    </script>
+</body>
+</html>
