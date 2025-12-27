@@ -1,96 +1,52 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiefkühler Inventar</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f0f4f8; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        h1 { color: #2c3e50; margin-bottom: 30px; }
-        .container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1200px; }
-        
-        /* Card Styling */
-        .card { background: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); width: 220px; padding: 15px; text-align: center; transition: transform 0.2s; }
-        .card:active { transform: scale(0.98); }
-        
-        .food-img { width: 100%; height: 160px; object-fit: cover; border-radius: 15px; margin-bottom: 12px; background-color: #eee; }
-        
-        .name { font-weight: bold; font-size: 1rem; margin-bottom: 10px; min-height: 2.5em; display: flex; align-items: center; justify-content: center; line-height: 1.2; color: #333; }
-        
-        /* MHD Datumsauswahl */
-        .mhd-label { font-size: 0.8rem; color: #7f8c8d; margin-bottom: 4px; display: block; }
-        .mhd-input { 
-            border: 1px solid #dcdde1; 
-            border-radius: 8px; 
-            padding: 5px; 
-            font-size: 0.9rem; 
-            color: #2c3e50; 
-            width: 90%; 
-            margin-bottom: 15px;
-            font-family: inherit;
-            text-align: center;
-        }
+const produkte = [
+    { name: "Hähnchenkeule", fach: 1 },
+    { name: "Sauerbraten", fach: 1 },
+    { name: "Sieben-Schwaben-Topf", fach: 2 },
+    { name: "Gemüsepfanne mit geschnittenen Gemüsemaultaschen", fach: 2 },
+    { name: "Rinderleber", fach: 3 },
+    { name: "Brokkoli-Bandnudeln", fach: 3 },
+    { name: "Pfefferfrikadellen", fach: 4 },
+    { name: "Nudelplatte", fach: 4 },
+    { name: "Ofenschlupfer", fach: 5 },
+    { name: "Schweinsbraten", fach: 5 },
+    { name: "Herzhafter Geflügeltopf", fach: 6 },
+    { name: "Griechische Hackroulade", fach: 6 },
+    { name: "Currywurst", fach: 7 },
+    { name: "Kaiserschmarrn", fach: 7 },
+    { name: "Kirschpfannkuchen", fach: 8 },
+    { name: "Pastapfanne Pesto Rosso", fach: 8 },
+    { name: "Herzhafter Geflügeltopf", fach: 9 },
+    { name: "Nougat-Palatschinken", fach: 9 },
+    // Hier nutzen wir den neuen Dateinamen 'sueße Lasagne.png'
+    { name: "Süsse Lasagne", fach: 9, bildName: "sueße Lasagne" } 
+];
 
-        /* Stückzahl-Kontrolle */
-        .stepper { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 8px 15px; border-radius: 12px; border: 1px solid #eee; }
-        .btn { background-color: #3498db; color: white; border: none; border-radius: 10px; width: 35px; height: 35px; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn:active { background-color: #2471a3; }
-        .count { font-size: 1.3rem; font-weight: 600; color: #2c3e50; }
-    </style>
-</head>
-<body>
+// ... im Loop unten dann diese Zeile anpassen:
+produkte.forEach((prod, index) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    
+    // Falls ein spezieller bildName existiert, nimm den, sonst den normalen Namen
+    const dateiName = prod.bildName ? prod.bildName : prod.name;
+    const bildURL = dateiName + ".png";
 
-    <h1>Mein Tiefkühler</h1>
-    <div class="container" id="product-container">
+    card.innerHTML = `
+        <img src="${bildURL}" class="food-img" alt="${prod.name}" 
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/180x130?text=Bild+fehlt';">
+        
+        <div class="fach-badge">Fach ${prod.fach}</div>
+        <div class="name">${prod.name}</div>
+        
+        <div class="mhd-area">
+            <span class="mhd-label">MHD:</span>
+            <input type="date" class="mhd-input" value="${heute}">
+
+            <div class="stepper">
+                <button class="btn" onclick="changeCount('count${index}', -1)">−</button>
+                <span class="count" id="count${index}">1</span>
+                <button class="btn" onclick="changeCount('count${index}', 1)">+</button>
+            </div>
         </div>
-
-    <script>
-        const produktNamen = [
-            "Hähnchenkeule", "Sauerbraten", "Sieben-Schwaben-Topf", 
-            "Gemüsepfanne mit geschnittenen Gemüsemaultaschen", "Rinderleber", 
-            "Brokkoli-Bandnudeln", "Pfefferfrikadellen", "Nudelplatte", 
-            "Ofenschlupfer", "Schweinsbraten", "Herzhafter Geflügeltopf", 
-            "Griechische Hackroulade", "Currywurst", "Kaiserschmarrn", 
-            "Kirschpfannkuchen", "Pastapfanne Pesto Rosso", "Herzhafter Geflügeltopf", 
-            "Nougat-Palatschinken", "Süsse Lasagne"
-        ];
-
-        const container = document.getElementById('product-container');
-
-        // Heute-Datum als Standardwert berechnen (YYYY-MM-DD Format)
-        const heute = new Error().toISOString ? new Date().toISOString().split('T')[0] : "";
-
-        produktNamen.forEach((name, index) => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            
-            // Bildname: "Name.png"
-            const bildURL = name + ".png";
-
-            card.innerHTML = `
-                <img src="${bildURL}" class="food-img" alt="${name}" onerror="this.src='https://via.placeholder.com/220x160?text=${encodeURIComponent(name)}'">
-                <div class="name">${name}</div>
-                
-                <span class="mhd-label">MHD:</span>
-                <input type="date" class="mhd-input" value="${heute}">
-
-                <div class="stepper">
-                    <button class="btn" onclick="changeCount('count${index}', -1)">−</button>
-                    <span class="count" id="count${index}">1</span>
-                    <button class="btn" onclick="changeCount('count${index}', 1)">+</button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-
-        function changeCount(id, delta) {
-            const countElement = document.getElementById(id);
-            let currentCount = parseInt(countElement.innerText);
-            let newCount = currentCount + delta;
-            if (newCount >= 0) {
-                countElement.innerText = newCount;
-            }
-        }
-    </script>
-</body>
-</html>
+    `;
+    container.appendChild(card);
+});
