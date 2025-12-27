@@ -12,7 +12,21 @@
         .card { background: white; border-radius: 20px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); width: 180px; padding: 12px; text-align: center; display: flex; flex-direction: column; }
         .food-img { width: 100%; height: 130px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; background-color: #f9f9f9; }
         
-        .fach-badge { background: #34495e; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; align-self: center; margin-bottom: 8px; }
+        /* Editierbare Fachnummer */
+        .fach-container { margin-bottom: 8px; font-size: 0.8rem; color: #7f8c8d; }
+        .fach-input { 
+            background: #34495e; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            width: 60px; 
+            text-align: center; 
+            padding: 2px 5px; 
+            font-size: 0.75rem; 
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .name { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; min-height: 2.8em; display: flex; align-items: center; justify-content: center; line-height: 1.2; color: #333; }
         
         .mhd-area { margin-top: auto; border-top: 1px solid #f0f0f0; padding-top: 10px; }
@@ -31,8 +45,6 @@
     <div class="container" id="product-container"></div>
 
     <script>
-        // Liste der Produkte
-        // Falls der Dateiname anders ist als der Name, füge bildName hinzu (ohne .png)
         const produkte = [
             { name: "Hähnchenkeule", fach: 1 },
             { name: "Sauerbraten", fach: 1 },
@@ -52,7 +64,7 @@
             { name: "Pastapfanne Pesto Rosso", fach: 8 },
             { name: "Herzhafter Geflügeltopf", fach: 9 },
             { name: "Nougat-Palatschinken", fach: 9 },
-            { name: "Süße Lasagne", fach: 9, } 
+            { name: "Süsse Lasagne", fach: 9, bildName: "sueße Lasagne" } 
         ];
 
         const container = document.getElementById('product-container');
@@ -62,7 +74,6 @@
             const card = document.createElement('div');
             card.className = 'card';
             
-            // Logik für den Bildnamen: Nutze bildName falls vorhanden, sonst name
             const dateiName = prod.bildName ? prod.bildName : prod.name;
             const bildURL = dateiName + ".png";
 
@@ -70,7 +81,10 @@
                 <img src="${bildURL}" class="food-img" alt="${prod.name}" 
                      onerror="if (this.src != 'https://via.placeholder.com/180x130?text=Bild+fehlt') { this.src='https://via.placeholder.com/180x130?text=Bild+fehlt'; }">
                 
-                <div class="fach-badge">Fach ${prod.fach}</div>
+                <div class="fach-container">
+                    Fach: <input type="number" class="fach-input" value="${prod.fach}" min="1" max="20">
+                </div>
+
                 <div class="name">${prod.name}</div>
                 
                 <div class="mhd-area">
@@ -98,4 +112,3 @@
     </script>
 </body>
 </html>
-
